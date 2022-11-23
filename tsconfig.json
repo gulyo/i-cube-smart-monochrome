@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"module": "NodeNext",
+		"target": "ESNext",
+		"moduleResolution": "NodeNext",
+		"sourceMap": false,
+		"esModuleInterop": true
+	},
+	"include": [
+		"src/index.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}

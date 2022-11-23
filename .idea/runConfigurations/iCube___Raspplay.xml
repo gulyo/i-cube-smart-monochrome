@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="iCube - Raspplay" type="NodeJSConfigurationType" path-to-node="sshConfig://gulyo@raspplay:22 agent/home/gulyo/.nvm/versions/node/v18.12.1/bin/node" node-parameters="bundle/iCubeSmart.js" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

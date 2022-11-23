@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="eebb7d94-8820-4f81-a73d-45259bc30410" name="raspplay">
+        <fileTransfer rootFolder="/home/gulyo/" accessType="SFTP" host="raspplay" port="22" sshConfigId="95046e76-df7c-4667-8143-d35084922dd2" sshConfig="gulyo@raspplay:22 agent" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="15000" passiveMode="true" shareSSLContext="true" isUseRsync="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

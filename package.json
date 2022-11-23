@@ -1,0 +1,46 @@
+{
+	"name": "i-cube-smart-monochrome",
+	"version": "1.0.0",
+	"description": "iCubeSmart 3D8-S-DIP (monochrome) LED cube controller with web service interface",
+	"main": "src/index.ts",
+	"scripts": {
+		"ts-node-watch": "nodemon",
+		"build": "tsc -p tsconfig.webpack.json && webpack --config webpack.config.js",
+		"watch": "tsc -p tsconfig.webpack.json && webpack --config webpack.config.js --watch",
+		"lint": "prettier-eslint --write '$PWD/src/**/*.tsx?' && eslint --fix src",
+		"prepare": "husky install"
+	},
+	"keywords": [],
+	"author": "Ádám Gulyás <gulyo@protonmail.com>",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/node": "^18.11.9",
+		"@types/prettier": "^2.7.1",
+		"@types/webpack": "^5.28.0",
+		"@typescript-eslint/eslint-plugin": "^5.42.1",
+		"@typescript-eslint/parser": "^5.42.1",
+		"copy-webpack-plugin": "^11.0.0",
+		"eslint": "^8.27.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"husky": "^8.0.0",
+		"husky-init": "^8.0.0",
+		"node-polyfill-webpack-plugin": "^2.0.1",
+		"nodemon": "^2.0.20",
+		"nodemon-webpack-plugin": "^4.8.1",
+		"prettier": "^2.7.1",
+		"prettier-eslint": "^15.0.1",
+		"prettier-eslint-cli": "^7.1.0",
+		"ts-loader": "^9.4.1",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.8.4",
+		"webpack": "^5.75.0",
+		"webpack-cli": "^4.10.0",
+		"webpack-node-externals": "^3.0.0"
+	},
+	"dependencies": {
+		"serialport": "^10.4.0",
+		"socket.io": "^4.5.3",
+		"socket.io-client": "^4.5.3"
+	}
+}

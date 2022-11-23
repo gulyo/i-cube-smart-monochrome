@@ -1,18 +1,13 @@
-// Copyright(C) Tomas Uktveris 2015
-// www.wzona.info
-/*
-This firmware.c file was created for a custom-made PCB that uses the STC12C5A60S2 to control an 8x8x8 monochrome LED Matrix.
-This is a derivative of the original firmware/v2-sdcc/firmware.c compiled by Tomazas.
-Credit goes to EdKeyes (from the Amulius - Embedded Engineering Discord Server) for helping me figure out how to correct frames being skipped.
- */
+
 #include <mcs51/stc12.h>
 
 #define C_COUNT 4
 #define LENGTH 8
+#define LEVEL_DELAY 4
 
 //volatile unsigned char layer_z = 0;   // Z-layer being re-painted
 
-__xdata volatile unsigned char display[LENGTH][LENGTH];
+__xdata volatile unsigned char input[LENGTH][LENGTH], display[LENGTH][LENGTH];
 
 volatile unsigned char x, y, z;
 
@@ -90,9 +85,8 @@ void delay( unsigned int i ) {
 // Clear the screen (removes artifacts/ghosting):
 void clear_display() {
 	P1 = 0xFF;
-	P0 = 0xFF;
 	P2 = 0xFF;
-	delay( 1 );
+	P0 = 0xFF;
 	P2 = 0x00;
 }
 
@@ -103,14 +97,18 @@ void refresh_display() {
 		for ( z = 0x00; z < LENGTH; ++z ) {
 			P2 = 1 << z;
 			P0 = ~display[ y ][ z ];
-			delay(1);
+//			delay5us();
+			P2 = 0x00;
 		}
 		P1 = ~( 1 << y );
-		delay(50);
+		delay( LEVEL_DELAY );
+		P1 = 0xFF;
+		// delay5us();
 	}
+	// delay5us();	// To prevent top level being dimmer
 	// }
-	clear_display();
-	
+	// clear_display();
+
 }
 
 void main() {
@@ -138,11 +136,11 @@ void main() {
 	TH0 = 0xc0;     // reload value
 	TL0 = 0;
 	EA = 1;  // enable global interrupts;
-	
+
 	P0 = 0x00;
 	P2 = 0xFF;
 	P1 = 0x00;
-	delay(100000);
+	delay( 100000 );
 	clear_display();
 
 	while ( 1 ) {
@@ -150,35 +148,31 @@ void main() {
 		if ( rx_in > 0 ) {
 			value = read_serial();
 
-//			if ( reading == 1 ) {  // Skip until sync
-//				display[ p_counter / LENGTH ][ p_counter % LENGTH ] = value;
-//				++p_counter;
-//			}
-//			if ( reading != 1 ) {
-			switch ( value ) {
-				case 0xF2:
-//						reading = 1;
-					for ( y = 0x00; y < LENGTH; ++y ) {
-						for ( z = 0x00; z < LENGTH; ++z ) {
-							display[ y ][ z ] = read_serial();
-						}
-					}
-					cleared = 0;
-					break;
-				case 0xF5:
-					clear_display();
-					cleared = 1;
-					break;
+			if ( reading == 1 ) {  // Skip until sync
+				input[ p_counter / LENGTH ][ p_counter % LENGTH ] = value;
+				++p_counter;
 			}
-//			}
-//			if (( reading == 1 ) && ( p_counter == ( LENGTH * LENGTH ))) {
-//				reading = 0;
-//				p_counter = 0;
-//				
-//				clear_display();
-//				delay(10);
-//				cleared = 0;
-//			}
+			if ( reading != 1 ) {
+				switch ( value ) {
+					case 0xF2:
+						reading = 1;
+						break;
+					case 0xF5:
+						clear_display();
+						cleared = 1;
+						break;
+				}
+			}
+			if (( reading == 1 ) && ( p_counter == ( LENGTH * LENGTH ))) {
+				for ( y = 0; y < LENGTH; ++y ) {
+					for ( z = 0; z < LENGTH; ++z ) {
+						display[y][z] = input[y][z];
+					}
+				}
+				reading = 0;
+				p_counter = 0;
+				cleared = 0;
+			}
 		}
 
 		// ----- Refreshing display -----

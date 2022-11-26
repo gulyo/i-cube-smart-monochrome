@@ -1,21 +1,27 @@
 
 #include <mcs51/stc12.h>
 
-#define C_COUNT 4
-#define LENGTH 8
-#define LEVEL_DELAY 4
+#define LENGTH          8
+#define BRIGHT_BIT      3  // In refresh_screen() I have to calculate actual P0 bytes => to make it more effective,
+// I write "static" code (repeating similar code chunks instead of for-s and if-s
+#define SCREEN_SIZE     64  // LENGTH * LENGTH
+#define STATE_SIZE      192  // BRIGHT_BIT * LENGTH * LENGTH
+#define LEVEL_DELAY     3
 
-//volatile unsigned char layer_z = 0;   // Z-layer being re-painted
+#define FORCED_REFRESH  2  // refreshing is needed during reading to ensure "continuous" light
 
-__xdata volatile unsigned char input[LENGTH][LENGTH], display[LENGTH][LENGTH];
+#define MAX_BUFFER      128     // UART ring buffer size
 
-volatile unsigned char x, y, z;
+__xdata volatile unsigned char state[2][BRIGHT_BIT][LENGTH][LENGTH];
+volatile unsigned char (*display)[BRIGHT_BIT][LENGTH][LENGTH], (*input)[BRIGHT_BIT][LENGTH][LENGTH];
+volatile __bit state_counter = 0;
 
-volatile unsigned int p_counter = 0;
-volatile __bit reading = 0;
-volatile __bit cleared = 1;
+volatile unsigned char y, z;
 
-#define MAX_BUFFER  128     // UART ring buffer size
+volatile unsigned int p_counter = 0, sub_counter = 0;
+volatile unsigned char refresh_counter = 0;
+
+volatile __bit keep_clear = 1;
 
 __xdata volatile unsigned char rx_buffer[MAX_BUFFER];
 volatile int rx_read = 0;
@@ -85,41 +91,97 @@ void delay( unsigned int i ) {
 // Clear the screen (removes artifacts/ghosting):
 void clear_display() {
 	P1 = 0xFF;
-	P2 = 0xFF;
 	P0 = 0xFF;
 	P2 = 0x00;
 }
 
 void refresh_display() {
-//	for ( unsigned char cycle = 0; cycle < C_COUNT; ++cycle ) {
-	// for ( unsigned char i = 0x00; i < 0x40; ++i ) {
-	for ( y = 0x00; y < LENGTH; ++y ) {
-		for ( z = 0x00; z < LENGTH; ++z ) {
-			P2 = 1 << z;
-			P0 = ~display[ y ][ z ];
-//			delay5us();
-			P2 = 0x00;
-		}
-		P1 = ~( 1 << y );
-		delay( LEVEL_DELAY );
-		P1 = 0xFF;
-		// delay5us();
-	}
-	// delay5us();	// To prevent top level being dimmer
-	// }
-	// clear_display();
+	if ( keep_clear ) return;
 
+	for ( y = 0x00; y < LENGTH; ++y ) {
+		clear_display();
+		switch ( refresh_counter ) {
+			// brightness 0 is just zero on all levels :)
+			case 0:
+				for ( z = 0x00; z < LENGTH; ++z ) {
+					P0 = ~(( *display )[ 0 ][ y ][ z ] | ( *display )[ 1 ][ y ][ z ] | ( *display )[ 2 ][ y ][ z ] );
+					P2 = 1 << z;
+					P2 = 0x00;
+				}
+				break;
+			case 1:
+				for ( z = 0x00; z < LENGTH; ++z ) {
+					P0 = ~(( *display )[ 1 ][ y ][ z ] | ( *display )[ 2 ][ y ][ z ] );
+					P2 = 1 << z;
+					P2 = 0x00;
+				}
+				break;
+			case 2:
+				for ( z = 0x00; z < LENGTH; ++z ) {
+					P0 = ~((( *display )[ 0 ][ y ][ z ] & ( *display )[ 1 ][ y ][ z ]) | ( *display )[ 2 ][ y ][ z ] );
+					P2 = 1 << z;
+					P2 = 0x00;
+				}
+				break;
+			case 3:
+				for ( z = 0x00; z < LENGTH; ++z ) {
+					P0 = ~(( *display )[ 2 ][ y ][ z ] );
+					P2 = 1 << z;
+					P2 = 0x00;
+				}
+				break;
+			case 4:
+				for ( z = 0x00; z < LENGTH; ++z ) {
+					P0 = ~(( *display )[ 0 ][ y ][ z ] & ( *display )[ 2 ][ y ][ z ] );
+					P2 = 1 << z;
+					P2 = 0x00;
+				}
+				break;
+			case 5:
+				for ( z = 0x00; z < LENGTH; ++z ) {
+					P0 = ~(( *display )[ 1 ][ y ][ z ] & ( *display )[ 2 ][ y ][ z ] );
+					P2 = 1 << z;
+					P2 = 0x00;
+				}
+				break;
+			case 6:
+				for ( z = 0x00; z < LENGTH; ++z ) {
+					P0 = ~(( *display )[ 0 ][ y ][ z ] & ( *display )[ 1 ][ y ][ z ] & ( *display )[ 2 ][ y ][ z ] );
+					P2 = 1 << z;
+					P2 = 0x00;
+				}
+				break;
+		}
+		P1 = ~( 0x01 << y );
+		delay( LEVEL_DELAY );
+	}
+
+	refresh_counter = ++refresh_counter % (( 0x01 << BRIGHT_BIT ) - 1 );
+	clear_display();
+}
+
+void rotate_state() {
+	display = &( state[ state_counter ] );
+	state_counter = ++state_counter % 2;
+	input = &( state[ state_counter ] );
+}
+
+void blink() {
+	P0 = 0x55;
+	P2 = 0xFF;
+	P1 = 0x00;
+	delay( 3000 );
+	clear_display();
+	delay( 10000 );
+	P0 = 0xAA;
+	P2 = 0xFF;
+	P1 = 0x00;
+	delay( 3000 );
+	clear_display();
 }
 
 void main() {
-//	for ( unsigned char cycle = 0; cycle < C_COUNT; ++cycle ) {
-	for ( y = 0; y < LENGTH; ++y ) {
-		for ( z = 0; z < LENGTH; ++z ) {
-			display[ y ][ z ] = 0x0;
-		}
-	}
-//	}
-
+	rotate_state();
 	unsigned char value;
 
 	// init uart - 19200bps@24.000MHz MCU
@@ -137,46 +199,30 @@ void main() {
 	TL0 = 0;
 	EA = 1;  // enable global interrupts;
 
-	P0 = 0x00;
-	P2 = 0xFF;
-	P1 = 0x00;
-	delay( 100000 );
-	clear_display();
+	blink();
 
 	while ( 1 ) {
 		// ----- Handling input -----
 		if ( rx_in > 0 ) {
 			value = read_serial();
 
-			if ( reading == 1 ) {  // Skip until sync
-				input[ p_counter / LENGTH ][ p_counter % LENGTH ] = value;
-				++p_counter;
-			}
-			if ( reading != 1 ) {
-				switch ( value ) {
-					case 0xF2:
-						reading = 1;
-						break;
-					case 0xF5:
-						clear_display();
-						cleared = 1;
-						break;
-				}
-			}
-			if (( reading == 1 ) && ( p_counter == ( LENGTH * LENGTH ))) {
-				for ( y = 0; y < LENGTH; ++y ) {
-					for ( z = 0; z < LENGTH; ++z ) {
-						display[y][z] = input[y][z];
+			switch ( value ) {
+				case 0xF2:
+					for ( p_counter = 0x00; p_counter < STATE_SIZE; ++p_counter ) {
+						sub_counter = p_counter % SCREEN_SIZE;
+						( *input )[ p_counter / SCREEN_SIZE ][ sub_counter / LENGTH ][ sub_counter % LENGTH ] = read_serial();
+						if ( !( p_counter % FORCED_REFRESH )) refresh_display();
 					}
-				}
-				reading = 0;
-				p_counter = 0;
-				cleared = 0;
+					rotate_state();
+					keep_clear = 0;
+					refresh_display();
+					break;
+				case 0xF5:
+					clear_display();
+					keep_clear = 1;
+					break;
 			}
-		}
-
-		// ----- Refreshing display -----
-		if ( !cleared ) {
+		} else {
 			refresh_display();
 		}
 	}

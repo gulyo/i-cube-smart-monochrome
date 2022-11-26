@@ -18,6 +18,10 @@ export class Cube {
 		this.calculator = value;
 	}
 
+	public set Timer(value: TimerFn) {
+		this.timer = value;
+	}
+
 	public readonly Start = (): void => {
 		this.counter = 0;
 		this.isRunning = true;

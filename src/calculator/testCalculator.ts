@@ -11,7 +11,7 @@ export const testCalculator: CalculatorFn = (counter) => {
 				0x87 : 0x80;
 			testMessage[i * 8 + j + 65] = (i === j) && (i === offset) ?
 				// ((0x01 << offset) | 0x01) : 0;
-				0x85 : 0x80;
+				0x84 : 0x80;
 			testMessage[i * 8 + j + 129] = (i === j) && ((7 - i) === offset) ?
 				// ((0x01 << offset) | 0x01) : 0;
 				0x81 : 0x80;

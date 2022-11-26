@@ -1,7 +1,7 @@
 import { SerialPort, SerialPortOpenOptions } from "serialport";
 import { AutoDetectTypes } from "@serialport/bindings-cpp";
 import { Cube } from "./cube";
-import { testCalculator } from "./calculator";
+import { shrinkingCube, shrinkingCubeTimer } from "./calculator";
 
 SerialPort.list().then(console.log);
 
@@ -18,8 +18,8 @@ port.open(function (err) {
 		return console.log("Error opening port: ", err.message);
 	}
 	const cube = new Cube(port);
-	cube.Calculator = testCalculator;
-
+	cube.Calculator = shrinkingCube;
+	cube.Timer = shrinkingCubeTimer;
 	cube.Start();
-	setTimeout(cube.Stop, 5000);
+	setTimeout(cube.Stop, 25000);
 });

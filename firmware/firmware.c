@@ -6,9 +6,9 @@
 // I write "static" code (repeating similar code chunks instead of for-s and if-s
 #define SCREEN_SIZE     64  // LENGTH * LENGTH
 #define STATE_SIZE      192  // BRIGHT_BIT * LENGTH * LENGTH
-#define LEVEL_DELAY     3
+#define LEVEL_DELAY     8
 
-#define FORCED_REFRESH  2  // refreshing is needed during reading to ensure "continuous" light
+#define FORCED_REFRESH  8  // refreshing is needed during reading to ensure "continuous" light
 
 #define MAX_BUFFER      128     // UART ring buffer size
 
@@ -76,7 +76,7 @@ unsigned char read_serial() {
 }
 
 // Some magic wait - as in original code:
-void delay5us( void ) {
+void delay5us() {
 	unsigned char a, b;
 	for ( b = 7; b > 0; b-- )
 		for ( a = 2; a > 0; a-- );
@@ -154,6 +154,7 @@ void refresh_display() {
 		}
 		P1 = ~( 0x01 << y );
 		delay( LEVEL_DELAY );
+//		delay5us();
 	}
 
 	refresh_counter = ++refresh_counter % (( 0x01 << BRIGHT_BIT ) - 1 );
@@ -180,25 +181,28 @@ void blink() {
 	clear_display();
 }
 
+void init() {
+	PCON &= 0x7F;       //Baudrate no doubled
+	SCON = 0x50;        //8bit and variable baudrate, 1 stop __bit, no parity
+	AUXR |= 0x04;       //BRT's clock is Fosc (1T) - page 64
+	BRT = 0xED;        //Set BRT's reload value
+	AUXR |= 0x01;       //Use BRT as baudrate generator - page 64
+	AUXR |= 0x10;       //BRT running
+	
+	// setup timer0
+	TH0 = 0xc0;     // reload value
+	TL0 = 0x00;
+
+	ES = 1;  // enable UART interrupt
+	EA = 1;  // enable global interrupts
+}
+
 void main() {
 	rotate_state();
 	unsigned char value;
-
-	// init uart - 19200bps@24.000MHz MCU
-	PCON &= 0x7F;       //Baudrate no doubled
-	SCON = 0x50;        //8bit and variable baudrate, 1 stop __bit, no parity
-	AUXR |= 0x04;       //BRT's clock is Fosc (1T)
-	BRT = 0xD9;         //Set BRT's reload value
-	AUXR |= 0x01;       //Use BRT as baudrate generator
-	AUXR |= 0x10;       //BRT running
-
-	ES = 1;  // enable UART interrupt
-
-	// setup timer0
-	TH0 = 0xc0;     // reload value
-	TL0 = 0;
-	EA = 1;  // enable global interrupts;
-
+	
+	init();
+	
 	blink();
 
 	while ( 1 ) {
@@ -221,6 +225,8 @@ void main() {
 					clear_display();
 					keep_clear = 1;
 					break;
+				default:
+					refresh_display();
 			}
 		} else {
 			refresh_display();

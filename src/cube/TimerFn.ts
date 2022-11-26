@@ -1,0 +1,1 @@
+export type TimerFn = (counter: number) => number;

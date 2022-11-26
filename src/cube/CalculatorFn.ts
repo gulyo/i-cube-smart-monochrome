@@ -1,0 +1,1 @@
+export type CalculatorFn = (counter: number) => Uint8Array;

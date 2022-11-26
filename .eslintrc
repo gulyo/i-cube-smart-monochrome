@@ -13,7 +13,8 @@
 		"quotes": [
 			"warn",
 			"double"
-		]
+		],
+		"no-bitwise": "off"
 	},
 	"parserOptions": {
 		"ecmaFeatures": {

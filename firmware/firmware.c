@@ -19,7 +19,7 @@ void clear_display() {
 	P2 = 0x00;
 }
 
-/*@formatter:off*/w
+/*@formatter:off*/
 void uart_isr() __interrupt (4)
 {
 //	clear_display();

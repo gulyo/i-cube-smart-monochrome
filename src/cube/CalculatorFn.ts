@@ -1,9 +1,5 @@
-import { TimerFn } from "./TimerFn";
-
-export interface CalculatorFn {
-  Timer?: TimerFn;
-  LevelDelay?: number;
-  RefreshTimer?: number;
-
+export interface CalculatorFn<T = unknown> {
   (counter: number): Uint8Array;
+
+  (counter: number, arg: T): Uint8Array;
 }

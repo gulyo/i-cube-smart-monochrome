@@ -1,10 +1,11 @@
 import { CalculatorFn } from "../cube";
 import { BRIGHT_BITS, EDGE_LENGTH } from "../framework";
 import { rotateByte } from "./util";
+import { library, LIBRARY_REGISTER } from "./library";
 // 02467531
 const brightContainer = [0b00001111, 0b01011010, 0b00111100];
 
-export const pulseWaves: CalculatorFn = (counter) => {
+const pulseWaves: CalculatorFn = (counter) => {
   const message = new Uint8Array(192);
   const movement = Math.floor(counter / 8);
 
@@ -29,3 +30,5 @@ export const pulseWaves: CalculatorFn = (counter) => {
 
   return message;
 };
+
+library[LIBRARY_REGISTER]("PulseWaves", pulseWaves);

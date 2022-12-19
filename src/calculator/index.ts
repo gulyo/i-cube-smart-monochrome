@@ -1,5 +1,7 @@
-export * from "./matrix";
-export * from "./nightRider";
-export * from "./pulseWaves";
-export * from "./shrinkingCube";
-export * from "./testCalculator";
+import "./matrix";
+import "./nightRider";
+import "./pulseWaves";
+import "./shrinkingCube";
+import "./testCalculator";
+
+export { library } from "./library";

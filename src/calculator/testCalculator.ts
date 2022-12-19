@@ -1,7 +1,8 @@
 import { CalculatorFn } from "../cube";
 import { BRIGHT_BITS, BRIGHT_LEVELS, EDGE_LENGTH } from "../framework";
+import { library, LIBRARY_REGISTER } from "./library";
 
-export const testCalculator: CalculatorFn = (counter) => {
+const testCalculator: CalculatorFn = (counter) => {
   const offset = Math.floor(counter / 4) % 8;
   const testMessage = new Uint8Array(192);
 
@@ -61,3 +62,5 @@ export const testCalculator: CalculatorFn = (counter) => {
   // }
   return testMessage;
 };
+
+library[LIBRARY_REGISTER]("Test", testCalculator);

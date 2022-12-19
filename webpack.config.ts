@@ -18,7 +18,10 @@ const config: Configuration = {
   },
   plugins: [
     new CopyPlugin({
-      patterns: [{ from: ".nvmrc", to: "./" }],
+      patterns: [
+        { from: ".nvmrc", to: "./" },
+        { from: "src/config.json", to: "./" },
+      ],
     }),
   ],
   externals: [nodeExternals()],

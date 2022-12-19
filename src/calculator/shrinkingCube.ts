@@ -1,9 +1,10 @@
 import { CalculatorFn } from "../cube";
 import { BRIGHT_BITS, EDGE_LENGTH, LedBrightness } from "../framework";
+import { library, LIBRARY_REGISTER } from "./library";
 
 const TIME_DIVIDER = 8;
 
-export const shrinkingCube: CalculatorFn = (counter) => {
+const shrinkingCube: CalculatorFn = (counter) => {
   const message = new Uint8Array(192);
   const mainCounter = Math.floor(counter / TIME_DIVIDER);
   const edgeCut = Math.abs((mainCounter % 7) - 3);
@@ -51,3 +52,5 @@ export const shrinkingCube: CalculatorFn = (counter) => {
   }
   return message;
 };
+
+library[LIBRARY_REGISTER]("ShrinkingCube", shrinkingCube);

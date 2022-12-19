@@ -1,10 +1,11 @@
 import { CalculatorFn } from "../cube";
 import { BRIGHT_BITS, EDGE_LENGTH } from "../framework";
+import { library, LIBRARY_REGISTER } from "./library";
 
 const LENGTH = 7;
 const STEP = 1;
 
-export const nightRider: CalculatorFn = (counter) => {
+const nightRider: CalculatorFn = (counter) => {
   const movement = Math.floor(counter / 2);
   const message = new Uint8Array(192);
 
@@ -56,3 +57,5 @@ export const nightRider: CalculatorFn = (counter) => {
 
   return message;
 };
+
+library[LIBRARY_REGISTER]("NightRider", nightRider);

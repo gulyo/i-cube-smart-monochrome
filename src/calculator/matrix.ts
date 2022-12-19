@@ -1,6 +1,7 @@
 import { CalculatorFn } from "../cube";
 import { EDGE_LENGTH, LedBrightness, LedCoordinate } from "../framework";
 import { setCoordinate } from "./util";
+import { library, LIBRARY_REGISTER } from "./library";
 
 const COUNT = 32;
 
@@ -17,7 +18,7 @@ const checkPoint = (p: Point): boolean => {
     return false;
   }
   let isInContainer = false;
-  for (let value of container.values()) {
+  for (const value of container.values()) {
     isInContainer ||= value.x === p.x && value.z === p.z;
   }
   return !isInContainer;
@@ -36,7 +37,7 @@ const addPoint = (): void => {
   container.add(point);
 };
 
-export const matrix: CalculatorFn = (counter) => {
+const matrix: CalculatorFn = (counter) => {
   const message = new Uint8Array(192);
   const movement = counter % 8;
 
@@ -44,16 +45,11 @@ export const matrix: CalculatorFn = (counter) => {
     message[i] = 0xff;
   }
 
-  // for (
-  //   ;
-  //   container.size < COUNT - Math.floor(Math.random() * COUNT);
-  //   addPoint()
-  // );
   if (container.size < COUNT && Math.random() > 0.85) {
     addPoint();
   }
 
-  for (let point of container) {
+  for (const point of container) {
     setCoordinate({ message, x: point.x, y: point.y, z: point.z, bright: 7 });
     for (
       let y = Math.max(0, point.y + 1);
@@ -79,3 +75,5 @@ export const matrix: CalculatorFn = (counter) => {
 
   return message;
 };
+
+library[LIBRARY_REGISTER]("Matrix", matrix);

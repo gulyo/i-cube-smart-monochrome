@@ -1,0 +1,17 @@
+POST http://localhost:8888/
+
+###
+
+POST http://localhost:8888/start HTTP/1.1
+Content-Type: application/json
+Cookie: key=first-value
+
+{
+	"calculator": "Matrix"
+}
+
+###
+
+POST http://localhost:8888/stop HTTP/1.1
+Content-Type: application/json
+Cookie: key=first-value

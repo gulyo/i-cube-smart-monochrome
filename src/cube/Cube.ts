@@ -14,7 +14,6 @@ export class Cube {
 
   public set Calculator(value: CalculatorFn) {
     this.calculator = value;
-    this.Timer = value.Timer ?? DEFAULT_FRAME_TIMER;
   }
 
   public set Timer(value: TimerFn) {

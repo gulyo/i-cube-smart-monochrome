@@ -23,7 +23,7 @@ class Library {
 }
 
 export const library = new Proxy<Library>(new Library(), {
-  get(target: Library, p: string): any {
+  get(target: Library, p: string): unknown {
     return isCalculatorName(p) ? target[LIBRARY_GET_BY_NAME](p) : target[p];
   },
 });

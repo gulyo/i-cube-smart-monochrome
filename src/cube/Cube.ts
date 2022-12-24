@@ -10,7 +10,13 @@ export class Cube {
   protected resolver: () => void;
   protected timer: TimerFn = DEFAULT_FRAME_TIMER;
 
+  protected arg: unknown;
+
   constructor(protected readonly port: SerialPort) {}
+
+  public set Arg(value: unknown) {
+    this.arg = value;
+  }
 
   public set Calculator(value: CalculatorFn) {
     this.calculator = value;
@@ -38,7 +44,7 @@ export class Cube {
   protected drawFrame = (): void => {
     // const clearMessage = new Uint8Array(1);
     // clearMessage[0] = MessageHeader.CLEAR;
-    this.port.write(Buffer.from(this.calculator(this.counter)));
+    this.port.write(Buffer.from(this.calculator(this.counter, this.arg)));
     this.counter = ++this.counter % (Number.MAX_SAFE_INTEGER - 1);
 
     if (this.isRunning) {

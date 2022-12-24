@@ -7,6 +7,7 @@ interface Point {
   x: LedCoordinate;
   y: LedCoordinate;
   z: LedCoordinate;
+  age: number;
 }
 
 const container: Set<Point> = new Set<Point>();
@@ -17,7 +18,7 @@ const checkPoint = (p: Point): boolean => {
   }
   let isInContainer = false;
   for (const value of container.values()) {
-    isInContainer ||= value.x === p.x && value.z === p.z;
+    isInContainer ||= value.x === p.x && value.y === p.y && value.z === p.z;
   }
   return !isInContainer;
 };
@@ -26,24 +27,27 @@ const addPoint = (): void => {
   const point = {
     x: Math.floor(Math.random() * EDGE_LENGTH) as LedCoordinate,
     z: Math.floor(Math.random() * EDGE_LENGTH) as LedCoordinate,
-    y: 7 as LedCoordinate,
+    y: Math.floor(Math.random() * EDGE_LENGTH) as LedCoordinate,
+    age: Math.floor(Math.random() * 192) + 32,
   };
+  point.age += point.age % 15;
   while (!checkPoint(point)) {
     point.x = Math.floor(Math.random() * EDGE_LENGTH) as LedCoordinate;
     point.z = Math.floor(Math.random() * EDGE_LENGTH) as LedCoordinate;
+    point.y = Math.floor(Math.random() * EDGE_LENGTH) as LedCoordinate;
   }
   container.add(point);
 };
 
 interface Arg {
   count: number;
-  backLight: boolean;
+  backLight?: boolean;
   counterMod: number;
 }
 
-const matrix: CalculatorFn = (
+const stars: CalculatorFn = (
   counter,
-  arg: Arg = { count: 64, backLight: false, counterMod: 8 }
+  arg: Arg = { count: 96, backLight: false, counterMod: 6 }
 ) => {
   const message = new Uint8Array(192);
   const movement = counter % arg.counterMod;
@@ -61,29 +65,18 @@ const matrix: CalculatorFn = (
   }
 
   for (const point of container) {
-    setCoordinate({ x: point.x, y: point.y, z: point.z, bright: 7 });
-    for (
-      let y = Math.max(0, point.y + 1);
-      y < EDGE_LENGTH && y < point.y + EDGE_LENGTH;
-      ++y
-    ) {
-      setCoordinate({
-        x: point.x,
-        y: y as LedCoordinate,
-        z: point.z,
-        bright: (7 - (y - point.y)) as LedBrightness,
-      });
-    }
-
-    if (!movement) {
-      --point.y;
-      if (point.y < -1 * EDGE_LENGTH) {
-        container.delete(point);
-      }
+    setCoordinate({
+      x: point.x,
+      y: point.y,
+      z: point.z,
+      bright: Math.max(Math.abs(7 - (point.age % 15)), 1) as LedBrightness,
+    });
+    if (!movement && !--point.age) {
+      container.delete(point);
     }
   }
 
   return message;
 };
 
-library[LIBRARY_REGISTER]("Matrix", matrix);
+library[LIBRARY_REGISTER]("Stars", stars);

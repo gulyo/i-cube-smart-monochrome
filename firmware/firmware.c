@@ -78,7 +78,10 @@ void uart_isr() __interrupt (4)
 	else {
 		++resetCounter;
 		resetCounter %= 128;
-		if ( !resetCounter ) counter = rowIndex = 0;
+		if ( !resetCounter ) {
+			counter = 0;
+			rowIndex = 0;
+		}
 	}
 }
 /*@formatter:on*/

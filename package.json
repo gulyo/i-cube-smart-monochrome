@@ -4,7 +4,7 @@
 	"description": "iCubeSmart 3D8-S-DIP (monochrome) LED cube controller with web service interface",
 	"main": "src/index.ts",
 	"scripts": {
-		"ts-node-watch": "nodemon",
+		"iCube.local": "nodemon",
 		"build": "tsc -p tsconfig.webpack.json && webpack --config webpack.config.js",
 		"watch": "tsc -p tsconfig.webpack.json && webpack --config webpack.config.js --watch",
 		"lint": "prettier-eslint --write '$PWD/src/**/*.tsx?' && eslint --fix src",

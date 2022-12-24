@@ -40,6 +40,7 @@ export class Service {
     const command: StartPayload = request.body;
 
     this.cube.Calculator = library[command.calculator];
+    this.cube.Arg = command.arg;
     this.cube.Start();
 
     response.setHeader("status", "200");

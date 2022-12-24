@@ -7,7 +7,12 @@ Content-Type: application/json
 Cookie: key=first-value
 
 {
-	"calculator": "Matrix"
+	"calculator": "Stars",
+	"arg": {
+		"count": 32,
+		"backLight": false,
+		"counterMod": 6
+	}
 }
 
 ###

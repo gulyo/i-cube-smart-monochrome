@@ -1,6 +1,7 @@
 export const calculatorNames: readonly string[] = [
   "Cyclic",
   "Matrix",
+  "Nibbles",
   "NightRider",
   "PulseWaves",
   "ShrinkingCube",

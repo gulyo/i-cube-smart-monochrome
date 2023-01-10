@@ -7,12 +7,7 @@ Content-Type: application/json
 Cookie: key=first-value
 
 {
-	"calculator": "Stars",
-	"arg": {
-		"count": 32,
-		"backLight": false,
-		"counterMod": 6
-	}
+	"calculator": "Nibbles"
 }
 
 ###

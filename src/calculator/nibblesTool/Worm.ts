@@ -105,12 +105,15 @@ export class Worm implements Iterable<LedPoint> {
     this.#head %= this.#length;
     let newHead: CubePoint = this.#motion(actHead);
     let index;
+    const offset = Math.floor(Math.random() * motionCollection.length);
     for (
       index = 0;
       this.#collision(newHead) && index < motionCollection.length;
       ++index
     ) {
-      newHead = motionCollection[index](actHead);
+      this.#motion =
+        motionCollection[(index + offset) % motionCollection.length];
+      newHead = this.#motion(actHead);
     }
     if (index === motionCollection.length) {
       this.#init();

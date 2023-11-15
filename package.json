@@ -1,6 +1,6 @@
 {
 	"name": "i-cube-smart-monochrome",
-	"version": "1.0.0",
+	"version": "0.9.0",
 	"description": "iCubeSmart 3D8-S-DIP (monochrome) LED cube controller with web service interface",
 	"main": "src/index.ts",
 	"scripts": {
@@ -11,8 +11,8 @@
 		"prepare": "husky install"
 	},
 	"keywords": [],
-	"author": "Ádám Gulyás <gulyo@protonmail.com>",
-	"license": "ISC",
+	"author": "Ádám Gulyás <dev.gulyo@proton.me>",
+	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^18.11.9",
 		"@types/prettier": "^2.7.1",
@@ -25,6 +25,7 @@
 		"eslint-plugin-prettier": "^4.2.1",
 		"husky": "^8.0.0",
 		"husky-init": "^8.0.0",
+		"iconv-lite": "^0.6.3",
 		"node-polyfill-webpack-plugin": "^2.0.1",
 		"nodemon": "^2.0.20",
 		"nodemon-webpack-plugin": "^4.8.1",
